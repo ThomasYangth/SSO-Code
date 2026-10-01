@@ -1,19 +1,22 @@
 # SSO-Code
 
 > [!NOTE]
-> The codebase is created with AI coding agents. The physical correctness of the code and figures are verified through extensive tests; however, the exact code and the comments in the files have not been totally proofread by human. In case any description conflicts with the paper, refer to the paper as source of truth. In case any error is found, please contact the author (yangth@princeton.edu).
+> The codebase is created with AI coding agents. The physical correctness of the code and figures are verified through extensive tests; however, the exact code and the comments in the files have not been totally proofread by human. In case any description conflicts with the paper, refer to the paper as source of truth. In case any error is found, please raise an issue or contact the author (yangth@princeton.edu).
 
 Code and figure data for
 
-> **Simple Slow Operators and Quantum Thermalization**  
+> **Simple slow operators and quantum thermalization**  
 > Tian-Hua Yang, Sarang Gopalakrishnan, and Dmitry A. Abanin  
 > [arXiv:2604.13172](https://arxiv.org/abs/2604.13172)
 
-The paper asks how *simple* (low Pauli weight, measured by the random-product-state
-weight ν) an operator can be while still being *slow* (relaxing on a time scale τ).
-The repository computes the optimal trade-off ν(τ) — the *simple-slow-operator
-frontier* — exactly on finite chains, in the thermodynamic limit, and through
-explicit constructions (filtered local operators, modulated hydrodynamic modes).
+An operator A (orthogonal to powers of H) is characterised by its *simplicity*
+ν_A = ‖A‖²_RPS — the squared random-product-state (RPS) norm, an ensemble variance
+norm that is dominated by small Pauli strings — and by the timescale on which it
+evolves, τ_A = 1/‖[H,A]‖ (A of unit Frobenius norm). The repository computes the
+ν(τ) frontier, the maximal simplicity at given τ obtained by optimisation, exactly on
+finite chains and in the thermodynamic limit, and compares it with the ν–τ curves
+traced by explicit operator families (filtered local operators, modulated
+hydrodynamic modes).
 
 Everything needed to regenerate the paper figures from the shipped data is in
 this repository. The production computations that created the data can also be
@@ -40,7 +43,7 @@ library `sso`; they run in seconds on a laptop.
 | `sector_L12_kimhuse_and_tfim` | Momentum-resolved frontier (K = 0 vs K = 1 winner, crossing arcs) for Kim–Huse and the TFIM, L = 12 | `sso.nutau`, `sso.plotting` | `frontier.py`, `crossing_sectors.py`, `crossing_within.py` → `slurm/nutau/{kimhuse_frontier_L6_12,tfim_frontier_L12,crossK_*,within_tfim_L12}.slurm` | [`docs/nutau.md`](docs/nutau.md) |
 | `nutau_hx0.9_twopanel` | (left) frontier for hx = 0.9 and a scan of hz, inset collapse vs τ·hz²; (right) hz = 0.03 frontier vs filtered spin current | `sso.nutau` | `frontier.py`, `crossing_within.py`, `filter_static.py` → `slurm/nutau/{hx09_frontier_L12,within_hx09_L12,filter_hx09_YZcur_L12}.slurm` | [`docs/nutau.md`](docs/nutau.md) |
 | `kimhuse_three_panel` | (a) global frontier L = 6–12; (b) ν₄(∞) vs L; (c) ν_n(∞) vs n against the Hⁿ baseline | `sso.nutau` | `frontier.py`, `crossing_sectors.py`, `tauinf.py` → `slurm/nutau/{kimhuse_frontier_*,crossK_kimhuse,tauinf_*}.slurm` | [`docs/nutau.md`](docs/nutau.md) |
-| `attempt_dmrg_*` *(not in the paper)* | DMRG/MPS variational frontier, L = 12–30, χ = 128–512, vs the exact L = 12 front — an **unsuccessful** approach (it stalls at a bond-dimension “χ wall”) | `julia/SlowopDMRG` | `julia/SlowopDMRG/scripts/{eps_ladder,one_step}.jl` → `slurm/dmrg/reproduce_plotted_series.sh` | [`docs/dmrg_attempt.md`](docs/dmrg_attempt.md) |
+| `attempt_dmrg_*` *(not in the paper)* | DMRG/MPS variational frontier, L = 12–30, χ = 128–512, vs the exact L = 12 frontier — an **unsuccessful** approach (it stalls at a bond-dimension “χ wall”) | `julia/SlowopDMRG` | `julia/SlowopDMRG/scripts/{eps_ladder,one_step}.jl` → `slurm/dmrg/reproduce_plotted_series.sh` | [`docs/dmrg_attempt.md`](docs/dmrg_attempt.md) |
 
 Each figure has a matching `scripts/extract/*.py` that rebuilds its `data/<figure>/`
 from raw compute output (`$SSO_OUTPUT`), and a `scripts/figures/*.py` that draws it.
@@ -61,7 +64,7 @@ Shared infrastructure: `sso/backend.py` (numpy/cupy), `sso/config.py` (paths),
 
 ## Conventions in one place
 
-* ν = ⟨O|B|O⟩/⟨O|O⟩ with the RPS kernel B = 3^(−#non-identity sites) (diagonal in the Pauli basis).
+* ν = ‖O‖²_RPS/‖O‖² = ⟨O|B|O⟩/⟨O|O⟩, where B, the kernel of the RPS norm, is diagonal in the Pauli-string basis with entry (d+1)^(−|P|) = 3^(−|P|) for a string P of weight |P|.
 * σ² = ⟨O|Δ²|O⟩/⟨O|O⟩; static Δ = E_m − E_n, τ = 1/σ; Floquet Δ² = 4 sin²((φ_m − φ_n)/2), chord τ = 1/(2 arcsin(σ/2)).
 * Kim–Huse Ising: H = Σ Z Z + 0.905 Σ X + 0.809 Σ Z. Kicked Ising: U = e^{−i 0.9 Σ X} e^{−i(Σ Z Z + 0.809 Σ Z)}. Model B (fig3panel a, b): mixed-field Ising ring Σ (Z Z + g X + h Z) with J = 1, g = −1.05, h = 0.5; TFIM: hx = 2, hz = 0.
 * `o` = number of conserved powers {I, H, …, H^{o−1}} projected out (`pows_max = o − 1`). Note that kimhuse_three_panel (b) uses o = 5.
