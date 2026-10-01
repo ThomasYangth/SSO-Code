@@ -1,5 +1,8 @@
 # SSO-Code
 
+> [!NOTE]
+> The codebase is created with AI coding agents. The physical correctness of the code and figures are verified through extensive tests; however, the exact code and the comments in the files have not been totally proofread by human. In case any description conflicts with the paper, refer to the paper as source of truth. In case any error is found, please contact the author.
+
 Code and figure data for
 
 > **Simple Slow Operators and Quantum Thermalization**  
