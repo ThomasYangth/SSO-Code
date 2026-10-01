@@ -2,8 +2,9 @@
 
 Code and figure data for
 
-> **Simple Slow Operators and Quantum Thermalization**
-> Tian-Hua Yang
+> **Simple Slow Operators and Quantum Thermalization**  
+> Tian-Hua Yang, Sarang Gopalakrishnan, and Dmitry A. Abanin  
+> [arXiv:2604.13172](https://arxiv.org/abs/2604.13172)
 
 The paper asks how *simple* (low Pauli weight, measured by the random-product-state
 weight ν) an operator can be while still being *slow* (relaxing on a time scale τ).
@@ -81,6 +82,20 @@ slices). Every Python routine also runs on the CPU (`--usegpu=False`, the
 default), which is practical for L ≲ 10–14 depending on the routine. The slurm
 launchers are written for Slurm with the Della partition names; adapt the
 `#SBATCH` headers to your cluster.
+
+## Citation
+
+If you use this code, please cite
+
+```bibtex
+@article{yang2026simple,
+  title         = {Simple slow operators and quantum thermalization},
+  author        = {Yang, Tian-Hua and Gopalakrishnan, Sarang and Abanin, Dmitry A.},
+  year          = {2026},
+  eprint        = {2604.13172},
+  archivePrefix = {arXiv}
+}
+```
 
 ## License
 
