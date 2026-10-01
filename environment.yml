@@ -1,0 +1,14 @@
+# Conda environment matching the production runs (Princeton Della "cuspin").
+name: sso
+channels: [conda-forge]
+dependencies:
+  - python=3.12
+  - numpy=2.2
+  - scipy=1.16
+  - matplotlib=3.10
+  - pytest
+  - pip
+  - pip:
+      - quspin==0.3.7
+      # GPU (optional): - cupy-cuda12x==13.4.1
+      - -e .

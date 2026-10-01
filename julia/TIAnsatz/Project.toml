@@ -1,0 +1,23 @@
+name = "TIAnsatz"
+uuid = "34ecf491-7324-48b9-8925-344195306f6a"
+version = "0.1.0"
+
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+ThermodynamicPauli = "a3f7c1d2-9b4e-4e8a-b6d0-3c5a8f2e1d07"
+
+[compat]
+CUDA = "=6.3.1"
+julia = "1.10"
+
+[extras]
+CUDA_Compiler_jll = "d1e2174e-dfdc-576e-b43e-73b79eb1aca8"
+CUDA_Runtime_jll = "76a88914-d11a-5bdc-97e0-2f5a05c973a2"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
