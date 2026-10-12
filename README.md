@@ -48,6 +48,17 @@ library `sso`; they run in seconds on a laptop.
 Each figure has a matching `scripts/extract/*.py` that rebuilds its `data/<figure>/`
 from raw compute output (`$SSO_OUTPUT`), and a `scripts/figures/*.py` that draws it.
 
+### Overhauled figure set (`figure_A` … `figure_H`)
+
+`scripts/figures/figure_{A..H}.py` → `figures/figure_{A..H}.{pdf,png}` is the current figure
+set. Each panel takes one third of a double-column width, and the plot widths are equalised
+within each figure. All filters are the Lorentzian m²/(ω² + m²) = 1/(1+θω²) unless the panel
+is an explicit filter comparison.
+
+[`docs/figure_catalog.md`](docs/figure_catalog.md) lists every panel. For each it gives the
+data, the source script and the filter, and it records the new computations behind D and G.
+The figures above remain reproducible from their own scripts.
+
 ## Sub-codebases
 
 | Path | Language | What it is |
@@ -58,6 +69,7 @@ from raw compute output (`$SSO_OUTPUT`), and a `scripts/figures/*.py` that draws
 | `sso/plotting/` | Python | Frontier assembly (sector winner + arcs) and shared figure style. |
 | `julia/TIAnsatz/` | Julia (CUDA optional) | Thermodynamic-limit frontier with a translation-invariant operator ansatz of support M (static with momentum q, and Floquet); matrix-free LOBPCG with a Chebyshev preconditioner. Includes the `ThermodynamicPauli` package (Pauli-string algebra on the infinite chain). |
 | `julia/SlowopDMRG/` | Julia (ITensors; CUDA optional) | The DMRG attempt: ε-constrained local QCQP sweeps for an MPS operator. Documented as unsuccessful. |
+| `KrylovChain/` | Python (numpy) | Self-contained: ν(τ) frontier of the su(1,1) Krylov-chain model (b_n = √(n(n+1)), M = e^{−μ(n+1)}), with (1+θL²)⁻¹ evaluated exactly by ω-space integrals. See [`KrylovChain/README.md`](KrylovChain/README.md). |
 
 Shared infrastructure: `sso/backend.py` (numpy/cupy), `sso/config.py` (paths),
 `sso/cli.py`, `sso/operators.py`. Conventions for contributors: [`docs/DEVELOPING.md`](docs/DEVELOPING.md).

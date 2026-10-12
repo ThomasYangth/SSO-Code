@@ -45,7 +45,11 @@ constructions it is compared against.  It produces the data of four figures:
   position) and the cross terms vanish; within one sector (`cross_*`) θ* is
   located by bisecting s(θ) = ν₀(θ) − (ν_lo + ν_hi)/2 with the top pair only.
 * **Filters** (`sso.nutau.filters`): a fixed base operator multiplied
-  element-wise by f(ω): Gaussian exp(−ω²/2s²), hard 1[|ω| ≤ w], time average
+  element-wise by f(ω): Gaussian exp(−ω²/2s²), hard 1[|ω| ≤ w], Lorentzian
+  m²/(ω² + m²) = 1/(1+θω²) (`lorentz`, the default filter, KrylovChain convention;
+  Floquet file tag `lorentzcut`; static window (m/2)e^{−m|t|}; used by `figure_B`,
+  launcher `slurm/nutau/filter_lorentz_L12.slurm`), squared Lorentzian m⁴/(ω² + m²)²
+  (`lorentz2`, `lorentz2cut`; comparisons only), time average
   (static (1/T)∫₀ᵀ e^{iωt}dt; Floquet (1/N)Σ_{t<N} e^{iωt} in closed form —
   the "trajectory" needs no time stepping).
 
@@ -137,6 +141,34 @@ from earlier probe runs (L = 6: 41, L = 7: 40, L = 10: 46 files instead of
 38); the figure uses every stored point, so a fresh run of
 `floquet_frontier_L6_12.slurm` gives a curve on the 38-point grid only
 (indistinguishable at plotting resolution but not bit-identical data).
+
+## Additions for the overhauled figures (figure_A … figure_H)
+
+* **Lorentzian filters.**
+  - `lorentz` is the default: m²/(ω²+m²) = 1/(1+θω²), the KrylovChain convention.
+  - `lorentz2` is the squared Lorentzian, used only for filter comparisons.
+  - `filter_floquet.py` writes `lorentzcut_*` / `lorentz2cut_*` files.
+  - `filter_static.py` has `--filters=`, and `--K=none` for operators spread over all
+    momentum sectors, such as a single-site Z₀. That path is checked: it reproduces the
+    K = 0 output exactly for Σ_x Z_x.
+* **New base operators.** `Ysum`, `X0`, `Y0`.
+* **`optimal_onesite.py`.** Finds the single-site Pauli direction n̂ (as Σ_x n̂·σ_x, and
+  as n̂·σ₀) whose conserved part, after removing I…H^pows_max, has the largest ν(∞). This
+  is a 3×3 generalised eigenproblem built from the Pauli coefficients.
+* **Launchers.**
+
+  | launcher | runs | for |
+  |---|---|---|
+  | `filter_lorentz_L12.slurm` | kicked Ising and h_x = 0.9 current with the Lorentzian | figure_B, figure_E |
+  | `filter_kimhuse_L12.slurm` | Kim–Huse ΣZ, ΣX, Z₀, all filters | figure G |
+  | `filter_kimhuse_onesite_Hq_L12.slurm` | optimal Σ n̂·σ and H_q, Lorentzian | figure_G (a) |
+  | `tfim_frontier_L6_11.slurm` | TFIM grids, L = 6–11 | figure_D |
+  | `tfim_arcs_L6_11.slurm` | TFIM cross- and within-sector arcs | figure_D |
+  | `tfim_tauinf_L6_12.slurm` | TFIM θ = ∞ | figure_D |
+
+* **Extractors.** `nutau_tfim_frontier.py`, `nutau_kimhuse_filters.py`, `ti_kimhuse_o4.py`.
+  `nutau_floquet_two_panel.py` and `nutau_hx09_twopanel.py` also take `--lorentz_src`.
+  See [`figure_catalog.md`](figure_catalog.md).
 
 ## Hardware and run times
 
