@@ -4,10 +4,14 @@ Reads (raw root: --src, else $SSO_OUTPUT; read-only), for each hz:
     Ising_J1.0X0.9Z{hz}_DSsoftKsec_Data/L12_K0_theta*l0.0k2o4.npz
     Ising_J1.0X0.9Z{hz}_DSsoftKsec_Data/crossings/cross_L12_K0_*.npz   (within-K0 arcs)
     Ising_J1.0X0.9Z0.03_StaticFilter_Data/filt_L12_K0_YZcur_l0.0o4.npz
+    --lorentz_src (default: the raw root)/Ising_J1.0X0.9Z0.03_StaticFilter_Data/
+        filt_L12_K0_YZcur_l0.0o4.npz with lorentz_* keys (slurm/nutau/filter_lorentz_L12.slurm;
+        skipped if absent)
 Writes data/nutau_hx0.9_twopanel/
     grid_hz{hz}.npz            theta, As, Bs, W
     arc_hz{hz}_theta{t}.npz    tau, nu, theta_star
     filt_hz0.03_YZcur.npz      {gauss,hard,avg}_{As,nu}
+    filt_hz0.03_YZcur_lorentz.npz   lorentz_{As,nu}
 
 Usage:
     python scripts/extract/nutau_hx09_twopanel.py --src=<raw root>
@@ -44,6 +48,12 @@ def main():
                              "filt_L12_K0_YZcur_l0.0o4.npz"))
     save_slim(os.path.join(out, "filt_hz0.03_YZcur.npz"),
               **{f"{k}_{q}": z[f"{k}_{q}"] for k in ("gauss", "hard", "avg") for q in ("As", "nu")})
+    lz = os.path.join(args.get("lorentz_src") or root, "Ising_J1.0X0.9Z0.03_StaticFilter_Data",
+                      "filt_L12_K0_YZcur_l0.0o4.npz")
+    if os.path.exists(lz) and "lorentz_As" in np.load(lz).files:
+        z = np.load(lz)
+        save_slim(os.path.join(out, "filt_hz0.03_YZcur_lorentz.npz"),
+                  lorentz_As=z["lorentz_As"], lorentz_nu=z["lorentz_nu"])
     print("wrote", out)
 
 

@@ -5,9 +5,11 @@ Reads (raw root: --src, else $SSO_OUTPUT; read-only)
     KickedIsing_g0.9J1.0h0.809_FloquetHardCut_Data/{gausscut,hardcut}_L12_{K0_Zsum,K0_Xsum,Knone_Z0}_l0.0.npz
     KickedIsing_g0.9J1.0h0.809_FloquetTrajectory_Data/ftraj_L12_Knone_{Zsum,Z0,Xsum}_N1e+06l0.0.npz
     --ti_dir/nutau_floquet_M{6..12}_g0p9tF1p0_gpures.dat   (TI-ansatz tables, copied verbatim)
+    --lorentz_src (default: the raw root)/KickedIsing_..._FloquetHardCut_Data/lorentzcut_L12_*_l0.0.npz
+        (Lorentzian m^2/(omega^2+m^2), slurm/nutau/filter_lorentz_L12.slurm; skipped if absent)
 Writes data/floquet_two_panel/
     grid_L{L}_K0.npz          theta, As, Bs, W, d_res   (top branch, theta = inf included)
-    {gausscut,hardcut}_L12_K{tag}_{op}.npz   width, As, nu, kept
+    {gausscut,hardcut,lorentzcut}_L12_K{tag}_{op}.npz   width, As, nu, kept
     ftraj_L12_Knone_{op}.npz  N, As_avg, nu_avg
     nutau_floquet_M{M}_g0p9tF1p0_gpures.dat
 
@@ -44,6 +46,12 @@ def main():
         for tag in ("gausscut", "hardcut"):
             z = np.load(os.path.join(cut, f"{tag}_L12_K{K}_{op}_l0.0.npz"))
             save_slim(os.path.join(out, f"{tag}_L12_K{K}_{op}.npz"), width=z["omega_star"],
+                      **{k: z[k] for k in ("As", "nu", "kept")})
+        lz = os.path.join(args.get("lorentz_src") or root, f"{MODEL}_FloquetHardCut_Data",
+                          f"lorentzcut_L12_K{K}_{op}_l0.0.npz")
+        if os.path.exists(lz):
+            z = np.load(lz)
+            save_slim(os.path.join(out, f"lorentzcut_L12_K{K}_{op}.npz"), width=z["omega_star"],
                       **{k: z[k] for k in ("As", "nu", "kept")})
         z = np.load(os.path.join(trj, f"ftraj_L12_Knone_{op}_N1e+06l0.0.npz"))
         save_slim(os.path.join(out, f"ftraj_L12_Knone_{op}.npz"),
