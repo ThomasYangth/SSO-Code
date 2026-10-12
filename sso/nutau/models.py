@@ -40,13 +40,16 @@ def kicked_ising(g=0.9, J=1.0, h=0.809):
 _BASE_OPERATORS = {
     "Zsum": lambda: Operator({"Z": 1.0}),
     "Xsum": lambda: Operator({"X": 1.0}),
+    "Ysum": lambda: Operator({"Y": 1.0}),
     "Z0": lambda: Operator({"Z": 1.0}, sitefun=lambda j: 1 if j == 0 else 0),
+    "X0": lambda: Operator({"X": 1.0}, sitefun=lambda j: 1 if j == 0 else 0),
+    "Y0": lambda: Operator({"Y": 1.0}, sitefun=lambda j: 1 if j == 0 else 0),
     "YZcur": lambda: Operator({"YZ": 1.0, "ZY": -1.0}),
 }
 
 
 def base_operator(name):
-    """Operator for a base-operator key (Zsum, Xsum, Z0, YZcur)."""
+    """Operator for a base-operator key (Zsum, Xsum, Ysum, Z0, X0, Y0, YZcur)."""
     if name not in _BASE_OPERATORS:
         raise ValueError(f"unknown base operator {name!r}; known: {sorted(_BASE_OPERATORS)}")
     return _BASE_OPERATORS[name]()
