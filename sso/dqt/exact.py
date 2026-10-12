@@ -54,8 +54,23 @@ def hk_rps_analytic(L, J, g, h, n):
     return L * (g * g / 3.0 + h * h / 3.0 + 0.5 * J * J * (1.0 + np.cos(k)) / 9.0)
 
 
-def exact_reference(L, J, g, h, n, svals, usegpu=False):
-    """Exact N1(s), N2(s), M(s) (normalized HS; s-convention of :mod:`sso.dqt.kernels`)."""
+def filter_response(kind, width, Om2, xp=np):
+    """f(Omega) from Omega^2: 'gauss' e^{-s^2 Omega^2/4}, 'lorentz' m^2/(Omega^2 + m^2),
+    'lorentz2' m^4/(Omega^2 + m^2)^2."""
+    if kind == "gauss":
+        return xp.exp(-0.25 * width ** 2 * Om2)
+    if kind == "lorentz":
+        return width ** 2 / (Om2 + width ** 2)
+    if kind == "lorentz2":
+        return (width ** 2 / (Om2 + width ** 2)) ** 2
+    raise ValueError(f"unknown filter {kind!r}")
+
+
+def exact_reference(L, J, g, h, n, svals, usegpu=False, kind="gauss"):
+    """Exact N1, N2, M per filter width (normalized HS; conventions of :mod:`sso.dqt.kernels`).
+
+    ``kind`` = 'gauss' (widths s), 'lorentz' or 'lorentz2' (widths m).
+    """
     xp = backend.xp(usegpu)
     D = 2 ** L
     E, U = xp.linalg.eigh(xp.asarray(mfim_hk(L, J, g, h, 0).toarray()))
@@ -65,9 +80,10 @@ def exact_reference(L, J, g, h, n, svals, usegpu=False):
     absHk2 = xp.abs(Hk_eig) ** 2
     out = {key: np.empty(len(svals)) for key in ("N1", "N2", "M")}
     for i, s in enumerate(svals):
-        W1 = xp.exp(-0.5 * s ** 2 * Om2)
+        f = filter_response(kind, s, Om2, xp)
+        W1 = f * f
         out["N1"][i] = float(backend.to_cpu(xp.sum(absHk2 * W1))) / D
         out["N2"][i] = float(backend.to_cpu(xp.sum(Om2 * absHk2 * W1))) / D
-        Os = U @ (Hk_eig * xp.exp(-0.25 * s ** 2 * Om2)) @ Uh
+        Os = U @ (Hk_eig * f) @ Uh
         out["M"][i] = rps_norm2(Os, L, usegpu)
     return out

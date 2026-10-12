@@ -66,14 +66,27 @@ def combine_fourier(files):
             cols[k].append(np.atleast_1d(d[f"{k}_samples"]))
     N1, N2, V0, V2, A = (np.vstack(cols[k]) for k in ("N1", "N2", "V0", "V2", "a"))
     B0, B2 = np.concatenate(cols["b0"]), np.concatenate(cols["b2"])
-    out = {k: np.zeros(ns) for k in ("N1", "N1_err", "N2", "N2_err", "M", "M_err")}
-    cc = np.zeros((ns, 2))
+    return dict(svals=sv, **pool_samples(N1, N2, V0, V2, A, B0, B2, GHS, Rg))
+
+
+def pool_samples(N1, N2, V0, V2, A, B0, B2, GHS, Rg):
+    """Front from pooled per-sample arrays (NaN = width not covered by that sample).
+
+    N1, N2, V0, V2: (n_haar, n_width); A: (n_prod, n_width); B0, B2: (n_prod,).
+    Returns N1, N1_err, N2, N2_err, M, M_err, tau_obs, tau_err, nu, nu_err, cc,
+    n_haar, n_prod (see :func:`combine_fourier`).
+    """
+    ns = N1.shape[1]
+    out = {k: np.full(ns, np.nan) for k in ("N1", "N1_err", "N2", "N2_err", "M", "M_err")}
+    cc = np.full((ns, 2), np.nan)
     nH = np.zeros(ns, int)
     nP = np.zeros(ns, int)
     sem = lambda x: x.std(ddof=1) / np.sqrt(len(x))
     for i in range(ns):
         hm, pm = ~np.isnan(N1[:, i]), ~np.isnan(A[:, i])
         nH[i], nP[i] = hm.sum(), pm.sum()
+        if nH[i] < 2 or nP[i] < 2:
+            continue
         out["N1"][i], out["N1_err"][i] = N1[hm, i].mean(), sem(N1[hm, i])
         out["N2"][i], out["N2_err"][i] = N2[hm, i].mean(), sem(N2[hm, i])
         cc[i] = np.linalg.solve(GHS, np.array([V0[hm, i].mean(), V2[hm, i].mean()]))
@@ -82,7 +95,7 @@ def combine_fourier(files):
     tau_e = 0.5 * tau * np.sqrt((out["N1_err"] / out["N1"]) ** 2 + (out["N2_err"] / out["N2"]) ** 2)
     nu = out["M"] / out["N1"]
     nu_e = nu * np.sqrt((out["M_err"] / out["M"]) ** 2 + (out["N1_err"] / out["N1"]) ** 2)
-    return dict(svals=sv, **out, tau_obs=tau, tau_err=tau_e, nu=nu, nu_err=nu_e, cc=cc,
+    return dict(**out, tau_obs=tau, tau_err=tau_e, nu=nu, nu_err=nu_e, cc=cc,
                 n_haar=nH, n_prod=nP)
 
 

@@ -1,10 +1,13 @@
-"""Gaussian / hard / time-average filters of a fixed operator under a static H.
+"""Gaussian / hard / Lorentzian (m^2/(omega^2+m^2); lorentz2 = its square) / time-average filters of a fixed operator under a static H.
 
 Replaces NuTauFilterStatic.py.  Base operator (--init_op): Zsum, Xsum, Z0, YZcur,
 or Hdens = the modulated energy density H_q = sum_x e^{-i q x} h_x,
 q = 2 pi K / L; or a real mixture --mix=Zsum:0.78,Xsum:-0.62 (file tag
 --mix_tag, default MIX).  Static convention tau = 1/sqrt(As).
 
+* --K=none: full space (any operator, e.g. a single-site Z0 spread over all
+  doubled-momentum sectors); projected off span{I, H, ..., H^pows_max} as for K = 0.
+  File tag K{none}.
 * K = 0: the operator is projected off span{I, H, ..., H^pows_max}; this
   commutes with every filter at lam = 0 (the span sits on omega = 0, where
   every filter equals 1).  K != 0 forces pows_max = -1 (nothing to remove).
@@ -20,7 +23,8 @@ q = 2 pi K / L; or a real mixture --mix=Zsum:0.78,Xsum:-0.62 (file tag
 * The sweep range is set by |omega| on the occupied support of the operator.
 
 Writes $SSO_OUTPUT/<model>_StaticFilter_Data/filt_L{L}_K{K}_{op|mix_tag}_l0.0o{o}.npz
-with keys {avg,hard,gauss}_{width,As,nu,tau,kept} plus nu_bare, nu_ortho,
+with keys {kind}_{width,As,nu,tau,kept} for each --filters kind (default
+avg,hard,gauss; also lorentz, lorentz2) plus nu_bare, nu_ortho,
 nu_diag, has_diag, w_zero_frac, As0, tau0, omega_min_sup, K_actual, E, k_m.
 
 Example (hx=0.9 current):
@@ -57,15 +61,20 @@ def main():
     usegpu = find_value(args, "usegpu", bool, False)
     xp = get_xp(usegpu)
     L = find_value(args, "L", int, 12)
-    K = find_value(args, "K", int, 0)
+    K_arg = str(args.get("K", "0"))
+    K = None if K_arg == "none" else int(K_arg)
     init_op = find_value(args, "init_op", str, "Zsum")
     mix = find_value(args, "mix", str, "")
     tag = find_value(args, "mix_tag", str, "MIX") if mix else init_op
-    pows_max = find_value(args, "pows_max", int, 3) if K == 0 else -1
+    pows_max = find_value(args, "pows_max", int, 3) if K in (0, None) else -1
+    if K is None and init_op == "Hdens":
+        raise ValueError("Hdens needs an integer K")
     n_width = find_value(args, "n_width", int, 40)
+    filters = str(args.get("filters", "avg,hard,gauss")).split(",")
+    lorentz_margin = find_value(args, "lorentz_margin", float, None)
     o = pows_max + 1
     path = os.path.join(output_dir(f"{name}_StaticFilter_Data"),
-                        f"filt_L{L}_K{K}_{tag}_l0.0o{o}.npz")
+                        f"filt_L{L}_K{K_arg}_{tag}_l0.0o{o}.npz")
     if os.path.exists(path) and not find_value(args, "override", bool, False):
         fprint(f"{path} exists; use --override=True")
         return
@@ -88,12 +97,17 @@ def main():
     kdiff = (spec.k[:, None] - spec.k[None, :]) % L
     w2 = np.abs(M0) ** 2
     sec = np.array([w2[kdiff == k].sum() for k in range(L)]) / w2.sum()
-    K_actual = int(np.argmax(sec))
-    if sec[K_actual] < 1 - 1e-9:
-        raise RuntimeError(f"{tag} is not confined to one sector (best K={K_actual}: {sec[K_actual]:.3e})")
-    if K_actual not in (K, (L - K) % L):
-        raise RuntimeError(f"{tag} lies in K={K_actual}, neither K={K} nor its conjugate")
-    fprint(f"operator in doubled-momentum sector K={K_actual} (requested {K})")
+    if K is None:                    # full space: the operator may spread over all sectors
+        K_actual = -1
+        fprint("full space (K=none); sector weights " + " ".join(f"{x:.3g}" for x in sec))
+    else:
+        K_actual = int(np.argmax(sec))
+        if sec[K_actual] < 1 - 1e-9:
+            raise RuntimeError(f"{tag} is not confined to one sector (best K={K_actual}: {sec[K_actual]:.3e});"
+                               " use --K=none")
+        if K_actual not in (K, (L - K) % L):
+            raise RuntimeError(f"{tag} lies in K={K_actual}, neither K={K} nor its conjugate")
+        fprint(f"operator in doubled-momentum sector K={K_actual} (requested {K})")
 
     Bop = EnergyBasisB(spec.V, L, usegpu)
     M0_d, dE_d, dsq_d = xp.asarray(M0), xp.asarray(dE), xp.asarray(dsq)
@@ -108,7 +122,9 @@ def main():
     fprint(f"nu: {nu_bare:.6e} (bare) -> {nu_ortho:.6e} (orthogonalised), tau0={tau_static(As0):.6g}")
 
     w2 = np.abs(to_cpu(M0_d)) ** 2
-    support = (kdiff == K_actual) & (w2 > 1e-24 * w2.sum())
+    support = w2 > 1e-24 * w2.sum()
+    if K is not None:
+        support &= kdiff == K_actual
     zero_tol = 1e-9 * float(np.abs(dE).max())
     zero = support & (np.abs(dE) <= zero_tol)
     M_zero = xp.where(xp.asarray(zero), M0_d, 0.0)
@@ -121,14 +137,15 @@ def main():
            + (f", nu_diag={nu_diag:.6e}" if has_diag else " (no conserved component)")
            + f"; |omega|_min on support {omega_min_sup:.6e}")
 
-    payload = dict(L=L, K=K, K_actual=K_actual, lam=0.0, model_name=name, init_op=tag,
+    payload = dict(L=L, K=-1 if K is None else K, K_arg=K_arg, K_actual=K_actual, lam=0.0, model_name=name, init_op=tag,
                    mix_spec=mix, pows_max=pows_max, E=spec.values, k_m=spec.k, n_dim=n,
                    omega_min_sup=omega_min_sup, nu_bare=nu_bare, nu_ortho=nu_ortho,
                    nu_diag=nu_diag, has_diag=has_diag, w_zero_frac=w_zero_frac,
                    n_zero=int(zero.sum()), zero_tol=zero_tol, As0=As0, tau0=tau_static(As0))
-    for kind_f in ("avg", "hard", "gauss"):
+    for kind_f in filters:
         grid = width_grid(abs_sup, n_width, kind_f, top=float(abs_sup.max()), gauss_margin=20.0,
-                          zero_tol=zero_tol, keep_slowest=not has_diag)
+                          zero_tol=zero_tol, keep_slowest=not has_diag,
+                          lorentz_margin=lorentz_margin)
         t0 = time()
         As, nu, kept = filter_sweep(M0_d, Bop, dE_d, dsq_d, kind_f, grid)
         fprint(f"'{kind_f}': {len(grid)} widths in [{grid[0]:.4g}, {grid[-1]:.4g}] ({time() - t0:.1f}s)")
@@ -136,12 +153,12 @@ def main():
                         f"{kind_f}_tau": tau_static(As), f"{kind_f}_kept": kept})
 
     if has_diag:
-        for kind_f in ("hard", "gauss"):
+        for kind_f in (k for k in filters if k != "avg"):
             rel = abs(payload[f"{kind_f}_nu"][0] / nu_diag - 1)
             fprint(f"'{kind_f}' narrowest nu vs omega=0 projection: rel {rel:.2e}")
             if rel > 1e-3:
                 raise RuntimeError(f"'{kind_f}' does not converge to the omega = 0 projection")
-    else:
+    elif "hard" in filters:
         kept = np.nan_to_num(payload["hard_kept"])
         alive = np.flatnonzero(kept > 1e-12)
         if alive.size == 0:

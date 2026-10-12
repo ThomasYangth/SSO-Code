@@ -85,6 +85,47 @@ Cross-check tools, kept for validation only:
 * `sso.dqt.chebmoment`: the Chebyshev-moment estimator, which reconstructs all `s`
   from s-independent moment blocks and has no time grid.
 
+## 2b. Re-filtering stored curves (`sso.dqt.refilter`; used by `figure_B` (b))
+
+N1, N2, V0, V2 are linear in C and a is linear in m. Any filter with known time kernels
+can therefore be applied to the stored raw curves (seeds ≥ 100) without new propagation
+(`scripts/compute/dqt/refilter.py`; slim data for the figure: `scripts/extract/dqt_lorentz_fronts.py`).
+Implemented filters, with kernels in `sso.dqt.kernels`:
+
+* `gauss` reproduces the stored samples to 1e-16.
+* `lorentz` is the default: f = m²/(Ω² + m²) = 1/(1+θω²), the KrylovChain convention.
+  - Its window is (m/2)e^{−m|t|}, and N1, N2 use the squared-Lorentzian window
+    (m/4)(1+m|t|)e^{−m|t|}.
+  - V2 = m²(C(0) − V0) exactly, since Ω²f = m² − m²f.
+  - For a flat spectrum, τ ≈ 1/m.
+* `lorentz2`, the squared Lorentzian m⁴/(Ω² + m²)², is kept for filter comparisons only.
+
+Notes:
+
+* **Coverage.** The Lorentzian kernels have exponential tails, so a sample covers m only
+  if m T_c ≥ y_C and m T_p ≥ y_P (`COVER`). The kernel tail multiplies the decayed late-time
+  correlator and trajectories, so the actual bias is tiny. Cutting the stored L = 16, 20, 23
+  records to m T_p = 8, 6, 5, 4 at fixed m changes ν by ≤ 5e-7, 1e-5, 1.5e-5, 6e-5
+  relative, all below 0.01σ.
+  - `lorentz` uses y_P = 6, y_C = 8.5 and reaches τ_obs ≈ 0.15–0.17 L², against 0.2 L² for
+    the Gaussian production fronts.
+  - `lorentz2` keeps y_P = 14, y_C = 20.
+* **Kink correction.** At τ = 0 the Lorentzian kernels have jumps in odd derivatives.
+  The plain trapezoid rule is then wrong at dt = 0.5; the `lorentz2` V2, for example, is
+  off by 71 % at m = 1.6. M stays unbiased, but wrong control-variate coefficients
+  inflate its error several-fold.
+  - The jumps are analytic. C(0), C''(0) and C''''(0) come from the HS Gram, and
+    m_ψ''(0) = −⟨ψ|ad²H_k|ψ⟩ from the stored `b2_samples`. Euler–Maclaurin endpoint
+    terms up to dt⁶ then correct the quadrature.
+  - Remaining error against ED (L = 10, dt = 0.5) for `lorentz`: N1, N2, V0, V2 ≤ 7e-6;
+    the product-state amplitudes 1.6e-4 at τ_target = 1 and ≤ 6e-5 for τ_target ≥ 2.
+    The residual comes from the unavailable m_ψ''''(0).
+* **ED agreement.** The full pipeline agrees with ED at L = 8 and L = 10 within the
+  statistical errors (`tests/dqt/test_refilter.py`).
+* **Compare filters on the same samples.** `--kind=gauss` re-filters the stored curves.
+  The shipped Gaussian front also pools the early seeds without curves, and changes in
+  the pooled sample set show up as ~2–3 % steps in a ratio.
+
 ## 3. Module map
 
 | file | content |
@@ -97,6 +138,7 @@ Cross-check tools, kept for validation only:
 | `sso/dqt/combine.py` | `seed_files`, `combine_fourier`, `pooled_correlators`, `g_rps_window` |
 | `sso/dqt/exact.py` | `exact_reference`, `rps_norm2`, `to_pauli_coeffs`, `hk_rps_analytic` |
 | `sso/dqt/chebmoment.py` | `cheb_vectors`, `moment_K/P`, `cheb_coeff_matrix`, `kernel_matrix`, `make_tau_grid`, `cheb_order_for`, `chebmoment_estimate` |
+| `sso/dqt/refilter.py` | `filter_kernels`, `covers`, `seed_samples`, `refilter_front` (other filters from stored curves) |
 | `sso/dqt/figdata.py` | loaders for `data/fig3panel` |
 | `sso/tiansatz.py` (appended) | q-scan analysis for panel (c): `discover_qs`, `load_q_curve`, `dnu_curve`, `mstab_family`, `log_ramp`, `dnu_tq2` |
 | `scripts/compute/dqt/fourier_cv.py` | one seed → seed NPZ (`output_dir("dqt")`) |

@@ -3,7 +3,7 @@ import numpy as np
 
 from sso.nutau.crossing import degenerate_pair_arc, sign_change_brackets
 from sso.nutau.conventions import tau_static
-from sso.nutau.filters import filter_values, sample_periods
+from sso.nutau.filters import filter_values, sample_periods, width_grid
 from sso.nutau.pauli import EnergyBasisB
 from sso.nutau.spectrum import diagonalize_static
 from sso.nutau.tauinf import ising_r, power_baseline_nu, tauinf_nu
@@ -46,4 +46,18 @@ def test_filters():
     N = 7
     direct = np.mean([np.exp(1j * w * t) for t in range(N)], axis=0)
     assert np.allclose(filter_values("avg", w, N, np, floquet=True), direct)
+    m = 0.7
+    lor = filter_values("lorentz", w, m, np)
+    assert np.allclose(lor, m ** 2 / (w ** 2 + m ** 2)) and lor[3] == 1
+    lor2 = filter_values("lorentz2", w, m, np)
+    assert np.allclose(lor2, lor ** 2)
+    t = np.linspace(-200, 200, 2000001)
+    for f, window in ((lor, 0.5 * m * np.exp(-m * np.abs(t))),
+                      (lor2, 0.25 * m * (1 + m * np.abs(t)) * np.exp(-m * np.abs(t)))):
+        ft = np.trapezoid(window[None, :] * np.exp(1j * w[:, None] * t[None, :]), t, axis=1)
+        assert np.allclose(ft, f, atol=1e-7)
+    grid = width_grid(np.array([0.0, 1e-3, 2.0]), 5, "lorentz", 2.0, 20.0, 1e-12)
+    assert np.isclose(grid[0], 1e-6) and np.isclose(grid[-1], 200.0)
+    grid = width_grid(np.array([0.0, 1e-3, 2.0]), 5, "lorentz2", 2.0, 20.0, 1e-12)
+    assert np.isclose(grid[0], 1e-5) and np.isclose(grid[-1], 60.0)
     assert sample_periods(1e6, 70)[0] == 1 and sample_periods(1e6, 70)[-1] == 10 ** 6

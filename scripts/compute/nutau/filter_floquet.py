@@ -1,4 +1,4 @@
-"""Gaussian / hard / N-period-average filters of a fixed operator under a Floquet U.
+"""Gaussian / hard / Lorentzian (m^2/(omega^2+m^2); lorentz2 = its square) / N-period-average filters of a fixed operator under a Floquet U.
 
 Replaces NuTauHardCutoffFloquet.py (--filters=gauss|hard) and
 NuTauTrajectoryFloquet.py (--filters=avg).  The base operator must be
@@ -6,7 +6,7 @@ traceless (orthogonal to the identity, the only projected-out operator).
 --K=<int> keeps the doubled-momentum sector K of the operator, --K=none the
 full space (needed for a strictly local operator such as Z0).  Chord
 convention tau = 1/(2 arcsin(sqrt(As)/2)).
-Writes $SSO_OUTPUT/<model>_FloquetHardCut_Data/{gausscut,hardcut}_L{L}_K{K}_{op}_l0.0.npz
+Writes $SSO_OUTPUT/<model>_FloquetHardCut_Data/{gausscut,hardcut,lorentzcut,lorentz2cut}_L{L}_K{K}_{op}_l0.0.npz
        (keys width/omega_star, As, nu, tau, kept)
    and $SSO_OUTPUT/<model>_FloquetTrajectory_Data/ftraj_L{L}_K{K}_{op}_N{N_max:g}l0.0.npz
        (keys N, As_avg, nu_avg, tau_avg).
@@ -80,11 +80,12 @@ def main():
             raw = spec.values[:, None] - spec.values[None, :]
             omega_f = xp.asarray(raw)
         else:
-            tag = {"gauss": "gausscut", "hard": "hardcut"}[kind_f]
+            tag = {"gauss": "gausscut", "hard": "hardcut", "lorentz": "lorentzcut", "lorentz2": "lorentz2cut"}[kind_f]
             path = os.path.join(output_dir(f"{name}_FloquetHardCut_Data"),
                                 f"{tag}_L{L}_K{K_arg}_{init_op}_l0.0.npz")
             grid = width_grid(np.abs(omega), n_width, kind_f, top=np.pi,
-                              gauss_margin=2.0, zero_tol=1e-12)
+                              gauss_margin=2.0, zero_tol=1e-12,
+                              lorentz_margin=find_value(args, "lorentz_margin", float, None))
             omega_f = xp.asarray(omega)
         if os.path.exists(path) and not override:
             fprint(f"{path} exists; use --override=True")

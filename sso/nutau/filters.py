@@ -6,11 +6,16 @@ omega_mn = E_m - E_n (static) or the quasi-energy difference phi_m - phi_n
 
     'gauss'  exp(-omega^2 / (2 s^2))           Gaussian time window of width 1/s
     'hard'   1[|omega| <= w]                    brick wall in frequency
+    'lorentz' m^2 / (omega^2 + m^2) = 1/(1 + theta omega^2), theta = 1/m^2: the Lorentzian
+             (default; KrylovChain convention, the mu = inf frontier operator);
+             static: time window (m/2) e^{-m|t|}
+    'lorentz2' m^4 / (omega^2 + m^2)^2         squared Lorentzian, only for filter comparisons;
+             static: time window (m/4)(1 + m|t|) e^{-m|t|}
     'avg'    static:  (1/T) int_0^T e^{i omega t} dt = e^{i omega T/2} sinc(omega T / 2 pi)
              Floquet: (1/N) sum_{t<N} e^{i omega t}  = e^{i x (N-1)} sin(N x)/(N sin x),
                       x = omega/2, evaluated as sinc(N x/pi)/sinc(x/pi) (exact at x -> 0)
 
-For Floquet 'gauss'/'hard' use |omega| wrapped into [0, pi]; 'avg' is periodic in
+For Floquet 'gauss'/'hard'/'lorentz'/'lorentz2' use |omega| wrapped into [0, pi]; 'avg' is periodic in
 omega and uses the raw phase difference.  The N-period average is therefore a
 closed-form filter: no time stepping, N = 10^6 costs the same as N = 2.
 
@@ -29,6 +34,12 @@ def filter_values(kind, omega, width, xp, floquet=False):
         return xp.exp(-(omega ** 2) / (2.0 * width ** 2)).astype(np.complex128)
     if kind == "hard":
         return (xp.abs(omega) <= width).astype(np.complex128)
+    if kind == "lorentz":
+        m2 = width ** 2
+        return m2 / (omega ** 2 + m2) + 0j
+    if kind == "lorentz2":
+        m2 = width ** 2
+        return (m2 / (omega ** 2 + m2)) ** 2 + 0j
     if kind == "avg" and floquet:
         x = 0.5 * omega
         return xp.exp(1j * x * (width - 1)) * (xp.sinc(width * x / np.pi) / xp.sinc(x / np.pi))
@@ -37,7 +48,8 @@ def filter_values(kind, omega, width, xp, floquet=False):
     raise ValueError(f"unknown filter {kind!r}")
 
 
-def width_grid(abs_omega, n_width, kind, top, gauss_margin, zero_tol, keep_slowest=False):
+def width_grid(abs_omega, n_width, kind, top, gauss_margin, zero_tol, keep_slowest=False,
+               lorentz_margin=None):
     """Log-spaced sweep from the narrow (tau -> inf) end to the transparent end.
 
     ``abs_omega`` are the |omega| the sweep should resolve (the static driver
@@ -45,11 +57,15 @@ def width_grid(abs_omega, n_width, kind, top, gauss_margin, zero_tol, keep_slowe
     w_min is their smallest value above ``zero_tol``.  The narrow end w_lo is
       hard, avg   w_min / 2
       gauss       w_min / gauss_margin  (exp(-w^2/2s^2) only kills w_min for s << w_min)
+      lorentz     w_min / lorentz_margin (default 1000; power-law tail f(w_min) ~ (m/w_min)^2)
+      lorentz2    w_min / lorentz_margin (default 100;  f(w_min) ~ (m/w_min)^4)
       keep_slowest=True (all kinds): w_min (1 + 1e-6) -- for an operator with no
                   omega = 0 component, keep exactly its slowest element
     and the sweep is
       hard   geomspace(w_lo, top)
       gauss  geomspace(w_lo, 10 top)        (transparent only for s >> top)
+      lorentz geomspace(w_lo, 100 top)      (f(top) = 0.9999 at m = 100 top)
+      lorentz2 geomspace(w_lo, 30 top)      (f(top) = 0.998 at m = 30 top)
       avg    geomspace(0.1/top, 20/w_lo)    (a time; large = narrow)
     """
     off = abs_omega[abs_omega > zero_tol]
@@ -58,12 +74,18 @@ def width_grid(abs_omega, n_width, kind, top, gauss_margin, zero_tol, keep_slowe
         lo = w_min * (1.0 + 1e-6)
     elif kind == "gauss":
         lo = w_min / gauss_margin
+    elif kind in ("lorentz", "lorentz2"):
+        lo = w_min / (lorentz_margin or (1000.0 if kind == "lorentz" else 100.0))
     else:
         lo = 0.5 * w_min
     if kind == "hard":
         return np.geomspace(lo, top, n_width)
     if kind == "gauss":
         return np.geomspace(lo, 10.0 * top, n_width)
+    if kind == "lorentz":
+        return np.geomspace(lo, 100.0 * top, n_width)
+    if kind == "lorentz2":
+        return np.geomspace(lo, 30.0 * top, n_width)
     if kind == "avg":
         return np.geomspace(0.1 / top, 20.0 / lo, n_width)
     raise ValueError(f"unknown filter {kind!r}")
