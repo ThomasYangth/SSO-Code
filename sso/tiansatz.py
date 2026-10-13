@@ -33,7 +33,7 @@ def read_ti_table(path):
 
 
 # --------------------------------------------------------------------------------------
-# Finite-momentum q scans (fig3panel (c)):  Delta nu(q, tau) = nu0_M(tau) - nu_M(q, tau)
+# Finite-momentum q scans (figure_F (b); formerly fig3panel (c)):  Delta nu(q, tau) = nu0_M(tau) - nu_M(q, tau)
 # --------------------------------------------------------------------------------------
 # Files ``nutau_M{M}_q{q:.5f -> 'p'}.dat`` (Kim-Huse J=1, g=0.905, h=0.809, infinite chain,
 # ansatz support span M, momentum q in rad/site) from the julia/TIAnsatz q-scan driver

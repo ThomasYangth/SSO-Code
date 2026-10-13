@@ -1,5 +1,5 @@
 #!/bin/bash
-# Resubmit the production runs behind fig3panel panel (c): Kim–Huse Ising
+# Resubmit the production runs behind figure_F (b) (formerly fig3panel panel (c)): Kim–Huse Ising
 # (J, g, h) = (1, 0.905, 0.809), static, momentum-q frontiers for M = 8..11.
 # Run from the repository root:  bash slurm/ti/reproduce_fig3c.sh
 # Each family maps onto one (or two) original Della job(s); all on MIG 1g.10gb, TOL = 1e-3.

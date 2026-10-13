@@ -12,7 +12,6 @@ Data: data/sector_L12_kimhuse_and_tfim/, data/kimhuse_three_panel/.
 Output: figures/figure_A.{pdf,png}
 """
 
-import importlib.util
 import os
 import sys
 
@@ -31,17 +30,9 @@ from matplotlib.ticker import LogLocator, StrMethodFormatter
 from sso.config import data_dir
 from sso.nutau.io import load_arcs, load_npz, read_csv
 from sso.plotting.frontier import sector_frontier
+from sso.plotting import sector_panel as sector
 from sso.plotting.style import layout_row, panel_label, save_figure
 
-
-def _load(name):
-    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, f"{name}.py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-sector = _load("sector_L12_kimhuse_and_tfim")
 
 DATA_KH = data_dir("kimhuse_three_panel")
 SLOT = 7.0 / 3.0

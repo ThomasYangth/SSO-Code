@@ -47,7 +47,9 @@ In Figure H, the two L = 12, step-8 points at χ = 256 and 512 have no saved MPS
 
 From the old production scripts:
 * `kimhuse_three_panel` (b): the power-law inset.
-* `floquet_two_panel` (a): the Gaussian, hard and sinc curves. They would come back in G only as the Hamiltonian counterpart.
-* `fig3panel` (a): the Gaussian-window version. B(b) shows the Lorentzian.
+* `floquet_two_panel` (a): the Gaussian, hard and sinc curves. G (a) shows only Lorentzian curves.
+* `fig3panel` (a): the Gaussian-window version. B (c) shows the Lorentzian.
 
-The old figure scripts and data are unchanged.
+The scripts and rendered files of these deprecated figures were removed from `main`;
+they remain in the git history up to commit `29d2621`. Their data directories are
+kept, because the new figures read them.

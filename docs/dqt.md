@@ -1,7 +1,14 @@
-# DQT / Chebyshev machinery for the modulated energy density (`sso.dqt`) and fig3panel
+# DQT / Chebyshev machinery for the modulated energy density (`sso.dqt`)
 
-This note covers the method behind `figures/fig3panel.pdf`, the code map, how each
-panel was produced, cost and hardware, and known caveats.
+This note covers the method behind the DQT panels: `figure_B` (c) (Lorentzian fronts,
+§2b) and `figure_F` (a), with `figure_F` (b) from the TI ansatz. It also gives the code
+map, how each panel was produced, cost and hardware, and known caveats.
+
+The data lives in `data/fig3panel/`, named after the deprecated paper figure `fig3panel`.
+That figure's panels map to the new ones as follows:
+* (a), the Gaussian-window front, is superseded by B (c), which shows the Lorentzian.
+* (b) became F (a).
+* (c) became F (b).
 
 ## 1. Model and target quantities
 
@@ -145,14 +152,14 @@ Notes:
 | `scripts/compute/dqt/combine.py` | seeds → `*_COMBINED.npz` |
 | `scripts/compute/dqt/validate_ed.py` | small-L DQT vs ED check (both engines, optional Chebyshev-moment) |
 | `scripts/extract/dqt_fig3panel.py` | raw seeds + TI tables → `data/fig3panel/` (checks against archived COMBINED) |
-| `scripts/figures/fig3panel.py` | the figure |
+| `scripts/figures/figure_B.py` (c), `scripts/figures/figure_F.py` | the figures |
 | `slurm/dqt/fourier_cv.slurm`, `slurm/dqt/campaigns.sh` | launcher + the full production campaign table |
 
 Raw file names and NPZ keys are those of the original production runs:
 `modhydro_fourier_cv_L{L}_n1_g-1.05_h+0.5_seed{S}.npz` and
 `modhydro_fourier_L{L}_n1_g-1.05_h+0.5_COMBINED.npz`.
 
-## 4. Provenance of fig3panel
+## 4. Provenance of the DQT data (`data/fig3panel/`; panel labels of the deprecated fig3panel)
 
 * **(a)** `nu` vs `tau_obs/L^2` for L = 16..23, with an inset vs `tau_obs`. The
   fronts are pooled from every seed of the campaigns in `slurm/dqt/campaigns.sh`:
@@ -187,7 +194,8 @@ Regenerate:
 bash slurm/dqt/campaigns.sh                       # (SUBMIT=1 to submit)  -> $SSO_OUTPUT/dqt
 python scripts/compute/dqt/combine.py --L=16,17,18,19,20,21,22,23
 python scripts/extract/dqt_fig3panel.py   # --raw defaults to $SSO_OUTPUT/dqt, --ti to $SSO_OUTPUT/ti
-python scripts/figures/fig3panel.py
+python scripts/extract/dqt_lorentz_fronts.py --raw=$SSO_OUTPUT/dqt   # Lorentzian fronts (figure_B c)
+python scripts/figures/figure_B.py; python scripts/figures/figure_F.py
 ```
 
 ## 5. Cost and hardware
@@ -208,8 +216,8 @@ python scripts/figures/fig3panel.py
   `m_samples`, `N1/N2/V0/V2/a/b0/b2_samples`) to ≤ 3e-14 relative.
 * **Pooling.** Re-pooling the 167 archived seeds with `combine_fourier` matches the
   archived COMBINED files to ≤ 4e-15 relative, for all keys and all L.
-* **Figure.** `fig3panel.pdf` rasterized at 300 dpi is pixel-identical to the
-  original `KrylovSize/Plots/modhydro/fig3panel.pdf`.
+* **Figure (historical).** The deprecated `fig3panel.pdf`, rasterized at 300 dpi, was
+  pixel-identical to the original `KrylovSize/Plots/modhydro/fig3panel.pdf`.
 * **Physics vs ED** (`scripts/compute/dqt/validate_ed.py`, L = 10, 40 Haar and 400
   product states, s = 0.7, 1.4, 2, 3, 4, 6, 8; Chebyshev engine).
   * Every N1, N2, M and nu agrees with ED within |z| ≤ 1.1 SEM, at both dt = 0.5 and

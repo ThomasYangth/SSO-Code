@@ -1,4 +1,4 @@
-"""Slim data for figures/sector_L12_kimhuse_and_tfim.pdf (Kim-Huse and TFIM, L=12).
+"""Slim data data/sector_L12_kimhuse_and_tfim/ for figure_A (a) and figure_D (a) (Kim-Huse and TFIM, L=12).
 
 Reads (raw root: --src, else $SSO_OUTPUT; read-only), for
 model in {Ising_J1.0X0.905Z0.809, Ising_J1.0X2.0Z0.0}:

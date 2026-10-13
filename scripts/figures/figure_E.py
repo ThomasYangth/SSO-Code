@@ -20,7 +20,6 @@ Data: data/nutau_hx0.9_twopanel/ (grid_hz*, arc_hz*, filt_hz0.03_YZcur{,_lorentz
 Output: figures/figure_E.{pdf,png}
 """
 
-import importlib.util
 import os
 import sys
 
@@ -40,17 +39,10 @@ from scipy.interpolate import CubicSpline
 from sso.nutau.conventions import tau_static
 from sso.nutau.io import load_npz
 from sso.plotting.frontier import break_gaps, tau_sorted
+from sso.plotting import hx09 as hx
 from sso.plotting.style import layout_row, panel_label, save_figure
 
 
-def _load(name):
-    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, f"{name}.py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-hx = _load("nutau_hx0.9_twopanel")
 SLOT, FIG_H, PANEL_H = 7.0 / 3.0, 2.05, 1.36
 FS_LABEL, FS_TICK, FS_LEG = 8, 7, 6
 FILTERS = [("lorentz", "Lorentzian", "#2a78d6", (0, (5, 1.6))),

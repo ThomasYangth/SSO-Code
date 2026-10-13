@@ -127,7 +127,7 @@ CUDA.jl 6.3.1, CUDA runtime 12.9, TOL = 1e-3. Original code: `~/OGH/nutau/lobpcg
 (`ham_mf_driver_q_gpures.jl`, `floquet_mf_driver_gpures.jl`), archived tables in
 `~/OGH/data/`. File names are unchanged.
 
-**fig3panel (c)** — Kim–Huse, static, `nutau_M{M}_q{q}.dat`, M = 8..11,
+**figure_F (b)** (formerly fig3panel (c)) — Kim–Huse, static, `nutau_M{M}_q{q}.dat`, M = 8..11,
 q ∈ {0, 0.002, 0.004, 0.006, 0.008, 0.01, 0.02, …, 0.10}
 (`slurm/ti/reproduce_fig3c.sh`):
 
@@ -138,7 +138,7 @@ q ∈ {0, 0.002, 0.004, 0.006, 0.008, 0.01, 0.02, …, 0.10}
 | M = 8, 9, 10, q = 0.01–0.10 | 30 pts, ..10^4 | 13620982 / 13620983 / 13620984 | 1–2 min (M = 10: sweep 114 s) |
 | q = 0 baselines (unprojected), M = 8–10 / M = 11 | 80 pts, ..10^4 | interactive srun 13444112 / 13443806 (no logs) | 6 min / 26 min |
 
-**floquet_two_panel (b)**, dashed "TI ansatz" — `nutau_floquet_M{M}_g0p9tF1p0_gpures.dat`,
+**figure_G (b)** (formerly floquet_two_panel (b)), dashed "TI ansatz" — `nutau_floquet_M{M}_g0p9tF1p0_gpures.dat`,
 M = 6..12, τ_F = 1, g = 0.9, h = 0.809, 24 θ to 10³ (`slurm/ti/reproduce_floquet.sh`;
 original array 13659320, 2026-09-09). Sweep wall time: M ≤ 8 ≈ 10 s, M = 9: 31 s,
 10: 122 s, 11: 538 s, 12: 2421 s (+ 100 s canvas build).

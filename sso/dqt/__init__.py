@@ -16,5 +16,5 @@ fourier      production Fourier-correlator estimator with {H_k, ad^2 H_k} contro
 combine      pooling of seed runs: nu(tau) front, C(t) & RPS-norm curves, G_RPS(t1,t2)
 exact        full-ED reference N1, N2, M (small L) and analytic ||H_k||_RPS
 chebmoment   Chebyshev-moment estimator (independent cross-check, small L)
-figdata      loaders for the shipped fig3panel data (data/fig3panel)
+figdata      loaders for the shipped DQT data (data/fig3panel; figure_B (c), figure_F)
 """

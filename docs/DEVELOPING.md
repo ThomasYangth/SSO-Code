@@ -16,11 +16,12 @@ sso/                    general Python library (import as `sso`)
   plotting/             shared plot style + figure-level helpers
 scripts/compute/<area>/ thin CLI drivers that call the library and write to output_dir()
 scripts/extract/        build the slim figure data in data/ from raw output
-scripts/figures/        one script per figure; ONLY loads data/ and calls sso.*; writes figures/
+scripts/figures/        figure_{A..H}.py, one per figure; ONLY loads data/ and calls sso.*; writes figures/
 slurm/                  sbatch launchers reproducing every production run
 julia/TIAnsatz/         thermodynamic-limit (translation-invariant ansatz) LOBPCG solver
 julia/SlowopDMRG/       DMRG attempt (documented as an unsuccessful approach)
-data/<figure>/          slim figure data (small; version-controlled)
+data/<dir>/             slim figure data (small; version-controlled; dirs keep the names of the
+                        original paper figures, see README for which figures read each)
 tests/                  pytest (Python) — CPU-only, small L, fast
 docs/                   method notes, figure provenance
 ```

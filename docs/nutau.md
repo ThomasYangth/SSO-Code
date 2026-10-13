@@ -3,9 +3,11 @@
 This part of the code computes, by exact diagonalization, the most local
 operator at a given slowness ("simple slow operators"), for the mixed-field
 Ising chain and the kicked Ising chain, and the explicit filtered
-constructions it is compared against.  It produces the data of four figures:
-`floquet_two_panel`, `sector_L12_kimhuse_and_tfim`, `nutau_hx0.9_twopanel`,
-`kimhuse_three_panel`.
+constructions it is compared against.  It produces the data of figures A, B (a, b),
+C, D, E and G.  The data directories keep the names of the deprecated paper figures
+`floquet_two_panel`, `sector_L12_kimhuse_and_tfim`, `nutau_hx0.9_twopanel` and
+`kimhuse_three_panel`; the panel labels in the provenance table below refer to those
+figures.  [`figure_catalog.md`](figure_catalog.md) maps them to the new panels.
 
 ## Definitions
 
@@ -70,9 +72,10 @@ constructions it is compared against.  It produces the data of four figures:
 `sso.plotting.frontier` holds the frontier assembly used by the figures:
 `grid_curve`, `break_gaps`, and `sector_frontier` (winner by W with tie → K=0,
 hand-over test for cross-sector arcs, bridging to neighbouring winners,
-clipping at τ_max, within-sector arcs placed in the branch holding θ*).  Both
-`sector_L12_kimhuse_and_tfim` (coloured segments) and `kimhuse_three_panel`
-(the `union` line) use it.
+clipping at τ_max, within-sector arcs placed in the branch holding θ*).  The
+sector-coloured panels (`sso.plotting.sector_panel`: figure_A (a), figure_D (a),
+figure_G (a)) and the multi-L frontiers (the `union` line: figure_A (b), figure_D (b))
+use it.
 
 Unification relative to the original MPS-Concentration scripts: one
 diagonalization routine for static/Floquet/full/momentum; one sector solver
@@ -82,7 +85,7 @@ commutant of the same solver); one arc formula; one filter sweep (the Floquet
 N-period trajectory is the discrete-average filter); one τ-convention module;
 one B operator.
 
-## Retained features not used by the four figures
+## Retained features not used by the figures
 
 Kept on request, validated against the original code at small L (below):
 
@@ -116,7 +119,7 @@ All drivers live in `scripts/compute/nutau/` and write to `$SSO_OUTPUT`
 production parameters exactly (submit from the repo root with `SSO_OUTPUT`
 set).  `scripts/extract/nutau_*.py` turn raw output into `data/<figure>/`
 (default source `$SSO_OUTPUT`, or `--src=`; read-only), and
-`scripts/figures/<figure>.py` draws from `data/` only.
+`scripts/figures/figure_{A..H}.py` draw from `data/` only.
 
 | figure / panel | raw data | driver | launcher |
 |---|---|---|---|
@@ -206,8 +209,8 @@ and compared with the archived production files (max relative deviation):
 The static-filter deviations come from the width grid: its narrow end is set by
 the smallest occupied |ω| = 3.4e-7, a near-degenerate splitting known only to
 ~2e-8 relative accuracy from `eigh`, and the whole grid scales with it.  The
-four figures rebuilt from the extracted `data/` are pixel-identical to the
-originals (200 dpi rasterisation, zero differing pixels).
+four (now deprecated) figures rebuilt from the extracted `data/` were
+pixel-identical to the originals (200 dpi rasterisation, zero differing pixels).
 
 Validation runs: CPU (4 cores) L ≤ 8 everything in 23 min; on one MIG slice
 the L = 12 points + two cross-sector arcs + filters took 41 min, each L = 12

@@ -1,4 +1,4 @@
-"""Slim data for figures/nutau_hx0.9_twopanel.pdf (Ising J=1, hx=0.9, small hz, L=12).
+"""Slim data data/nutau_hx0.9_twopanel/ for figure_B (b) and figure_E (Ising J=1, hx=0.9, small hz, L=12).
 
 Reads (raw root: --src, else $SSO_OUTPUT; read-only), for each hz:
     Ising_J1.0X0.9Z{hz}_DSsoftKsec_Data/L12_K0_theta*l0.0k2o4.npz

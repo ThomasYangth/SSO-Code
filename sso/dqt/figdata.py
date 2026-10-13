@@ -1,4 +1,5 @@
-r"""Loaders for the slim fig3panel data written by ``scripts/extract/dqt_fig3panel.py``.
+r"""Loaders for the slim DQT / TI data in ``data/fig3panel/`` (figure_B (c), figure_F), written by
+``scripts/extract/dqt_fig3panel.py`` and ``scripts/extract/dqt_lorentz_fronts.py``.
 
 Layout of ``data/fig3panel/``::
 
@@ -48,5 +49,5 @@ def load_grps(L=INSET_L, base=None):
 
 
 def ti_dir(base=None):
-    """Directory of the TI-ansatz q-scan tables used in panel (c)."""
+    """Directory of the TI-ansatz q-scan tables (figure_F (b))."""
     return f"{base or data_dir(FIG)}/ti_q_scan"

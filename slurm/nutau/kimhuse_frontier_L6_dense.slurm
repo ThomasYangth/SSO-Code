@@ -17,7 +17,7 @@ conda activate cuspin
 D=scripts/compute/nutau
 # Kim-Huse L = 6, all K, theta in [0.1, 1e5] (61 pts).  Together with the 51-pt
 # production grid this gives the 62-point L = 6 K = 0 / K = 1 grids of
-# kimhuse_three_panel (a).  (original: slurm/run_nutau_ds_soft_ksec_ising_L6.slurm)
+# figure_A (b) (formerly kimhuse_three_panel (a)).  (original: slurm/run_nutau_ds_soft_ksec_ising_L6.slurm)
 python $D/frontier.py --model=Ising --J=1.0 --hx=0.905 --hz=0.809 \
     --Lmin=6 --Lmax=6 --K=all --pows_max=3 --k_save=2 --lam=0.0 \
     --theta_min=0.1 --theta_max=100000.0 --theta_num=61 --usegpu=True

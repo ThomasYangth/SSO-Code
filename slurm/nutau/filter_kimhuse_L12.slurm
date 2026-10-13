@@ -18,7 +18,7 @@ D=scripts/compute/nutau
 # Kim-Huse (J=1, hx=0.905, hz=0.809), L = 12: Sum Z_x, Sum X_x (K = 0) and Z_0 (all
 # momenta, --K=none), projected off span{I, H, H^2, H^3} (o4), under the Lorentzian,
 # Gaussian, hard-cutoff and time-average filters, 60 widths (figure_G (a), the
-# Hamiltonian counterpart of floquet_two_panel (a)).
+# Hamiltonian counterpart of figure_B (a)).
 #   -> Ising_J1.0X0.905Z0.809_StaticFilter_Data/filt_L12_K{0,none}_{op}_l0.0o4.npz
 M="--model=Ising --J=1.0 --hx=0.905 --hz=0.809 --L=12 --pows_max=3 --n_width=60 --filters=avg,hard,gauss,lorentz --usegpu=True"
 python $D/filter_static.py $M --K=0 --init_op=Zsum

@@ -6,8 +6,8 @@ that was developed, run at L = 12–30, and abandoned. It reproduces the exact f
 at short times (τ ≲ 14 at L = 12) but runs into a bond-dimension ("χ") wall before
 reaching the long-time regime the paper is about, and increasing χ moves the wall only
 marginally at large cost. Code: `julia/SlowopDMRG/` (a clean port of the original
-`MPS-Con-DMRG-Julia` package). Figures: `figures/attempt_dmrg_L12.png`,
-`figures/attempt_dmrg_multiL_tauOverL2.png`.
+`MPS-Con-DMRG-Julia` package). Figure: `figures/figure_H.png` (`scripts/figures/figure_H.py`;
+it replaces the deprecated `attempt_dmrg_L12` and `attempt_dmrg_multiL_tauOverL2` figures).
 
 ## 1. The variational problem
 
@@ -104,8 +104,7 @@ ramps to 256 from the first sweep. For χ = 128 ladders the two schedules coinci
 
 ## 4. Result: the χ wall
 
-![L=12](../figures/attempt_dmrg_L12.png)
-![multi-L](../figures/attempt_dmrg_multiL_tauOverL2.png)
+![Figure H: (a) L = 12, (b) L = 12-30 vs tau/L^2](../figures/figure_H.png)
 
 **L = 12 against the exact frontier** (relative ν gap `(ν* − ν)/ν*`, ν* interpolated
 in log ε from `ed_front_L12.csv`):

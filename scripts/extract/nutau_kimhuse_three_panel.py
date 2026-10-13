@@ -1,4 +1,4 @@
-"""Slim data for figures/kimhuse_three_panel.pdf (Kim-Huse J=1, hx=0.905, hz=0.809).
+"""Slim data data/kimhuse_three_panel/ for figure_A (b), figure_C, figure_G (Kim-Huse J=1, hx=0.905, hz=0.809).
 
 Reads (raw root: --src, else $SSO_OUTPUT; read-only)
     Ising_J1.0X0.905Z0.809_DSsoftKsec_Data/L{6..12}_K0_theta*l0.0k2o4.npz, L{L}_K1_theta*l0.0k2o0.npz

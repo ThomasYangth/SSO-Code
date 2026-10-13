@@ -24,7 +24,6 @@ Data: data/nutau_hx0.9_twopanel/ (filt_hz0.03_YZcur_lorentz.npz), data/fig3panel
 Output: figures/figure_B.{pdf,png}
 """
 
-import importlib.util
 import os
 import sys
 
@@ -45,18 +44,10 @@ from sso.dqt.figdata import LS, load_lorentz_front
 from sso.nutau.conventions import tau_floquet, tau_static
 from sso.nutau.io import load_npz
 from sso.plotting.frontier import break_gaps, tau_sorted
+from sso.plotting import floquet as fl
+from sso.plotting import hx09 as hx
 from sso.plotting.style import layout_row, panel_label, save_figure
 
-
-def _load(name):
-    spec = importlib.util.spec_from_file_location(name, os.path.join(HERE, f"{name}.py"))
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
-
-
-hx = _load("nutau_hx0.9_twopanel")
-fl = _load("floquet_two_panel")
 
 SLOT, FIG_H = 7.0 / 3.0, 2.05
 PANEL_H = 1.36   # plot height (inches); widths are equalised by layout_row

@@ -1,4 +1,4 @@
-"""Slim data for figures/floquet_two_panel.pdf (kicked Ising g=0.9, J=1, h=0.809).
+"""Slim data data/floquet_two_panel/ for figure_B (a) and figure_G (b) (kicked Ising g=0.9, J=1, h=0.809).
 
 Reads (raw root: --src, else $SSO_OUTPUT; read-only)
     KickedIsing_g0.9J1.0h0.809_DSFloquet_Data/L{6..12}_K0_theta*l0.0k2o1.npz

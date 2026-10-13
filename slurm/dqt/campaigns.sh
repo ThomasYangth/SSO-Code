@@ -1,5 +1,5 @@
 #!/bin/bash
-# Production seed families behind fig3panel (a,b): Model B ring J=1, g=-1.05, h=0.5, n=1,
+# Production seed families behind the DQT data (figure_B (c), figure_F (a); formerly fig3panel (a,b)): Model B ring J=1, g=-1.05, h=0.5, n=1,
 # dt=0.5, nsigma=6, Chebyshev engine, cupy.  167 seed files, ~620 GPU-hours in total.
 # s grid of a family = production_svals(SMAX) = 0.7,1.4,2,3,4,6,8,10,12,14,16,18,...,SMAX;
 # each family's grid is a prefix of the next, as required by sso.dqt.combine.
